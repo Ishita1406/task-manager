@@ -35,13 +35,15 @@ app.use('/api/auth', userRouter);
 
 app.use('/api/task', taskRouter);
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(express.static(path.join(__dirname, 'client', 'dist')));
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+    const indexPath = path.join(__dirname, 'client', 'dist', 'index.html');
+    res.sendFile(indexPath);
 });
 
 
