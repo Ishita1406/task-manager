@@ -6,6 +6,7 @@ import taskRouter from './routes/task.route.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
@@ -34,12 +35,15 @@ app.use('/api/auth', userRouter);
 
 app.use('/api/task', taskRouter);
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
-app.use(express.static(path.join(__dirname, '/client/dist')));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(path.join(__dirname, 'client', 'dist')));
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
 });
+
 
 
 app.use((err, req, res, next) => {
