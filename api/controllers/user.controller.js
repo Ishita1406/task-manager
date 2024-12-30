@@ -1,6 +1,7 @@
 import bcryptjs from 'bcryptjs';
 import User from '../models/user.model.js';
 import jsonwebtoken from 'jsonwebtoken';
+import { errorHandeler } from '../utils/error.js';
 
 export const signup = async (req, res, next) => {
     const { username, email, password } = req.body;
@@ -18,23 +19,31 @@ export const signup = async (req, res, next) => {
     }
 }
 
+
 export const signin = async (req, res, next) => {
-    const {email, password} = req.body;
+    const { email, password } = req.body;
     try {
-        const validUser = await User.findOne({email});
+        const validUser = await User.findOne({ email });
         if (!validUser) return next(errorHandeler(404, 'User not found!'));
+
         const validPassword = bcryptjs.compareSync(password, validUser.password);
         if (!validPassword) return next(errorHandeler(401, 'Invalid credentials!'));
-        const token = jsonwebtoken.sign({id: validUser._id}, process.env.JWT_SECRET);
-        const {password: pass, ...rest} = validUser._doc;
-        res.cookie('access_token', token, 
-            {httpOnly: true})
+
+        const token = jsonwebtoken.sign(
+            { id: validUser._id, exp: Math.floor(Date.now() / 1000) + 60 * 60 }, // 1 hour expiry
+            process.env.JWT_SECRET
+        );
+
+        const { password: pass, ...rest } = validUser._doc;
+
+        res.cookie('access_token', token, { httpOnly: true })
             .status(200)
-            .json(rest);
+            .json({ ...rest, token });  // Send user data and token
     } catch (error) {
         next(error);
     }
-}
+};
+
 
 export const signout = async (req, res, next) => {
     try {

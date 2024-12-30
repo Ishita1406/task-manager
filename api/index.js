@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import userRouter from './routes/user.route.js';
 import taskRouter from './routes/task.route.js';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 dotenv.config();
 
 const app = express();
@@ -21,6 +23,10 @@ mongoose.connect(process.env.MONGO)
         console.log('Error connecting to MongoDB', error);
     });
 
+
+app.use(cookieParser());
+
+app.use(cors());
 
 app.use('/api/auth', userRouter);
 
